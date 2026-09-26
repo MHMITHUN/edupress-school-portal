@@ -1,0 +1,45 @@
+/**
+ * EduPress Notice Board — admin styles (only enqueued on edupress_notice
+ * screens; see edupress_nb_admin_assets).
+ */
+
+.edupress-meta {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+.edupress-meta__field label strong {
+	font-weight: 600;
+}
+
+.edupress-meta__field select,
+.edupress-meta__field input[type="datetime-local"] {
+	width: 100%;
+	max-width: 16rem;
+}
+
+/* Priority signal in the metabox — matches the portal's tone mapping. */
+.edupress-meta__priority option[value="high"] {
+	color: #b45309;
+	font-weight: 600;
+}
+
+.edupress-meta__priority option[value="urgent"] {
+	color: #b91c1c;
+	font-weight: 600;
+}
+
+.edupress-meta__priority.is-high,
+.edupress-meta__priority.is-urgent {
+	border-color: currentColor;
+	border-width: 2px;
+}
+
+.edupress-meta__priority.is-high {
+	color: #b45309;
+}
+
+.edupress-meta__priority.is-urgent {
+	color: #b91c1c;
+}
