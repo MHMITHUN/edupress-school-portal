@@ -9,12 +9,19 @@ import {
   setSessionCookie,
 } from "@/lib/auth/session";
 import { getStore } from "@/lib/db";
+import { rateLimit } from "@/lib/rate-limit";
 import { loginSchema } from "@/lib/validation/auth";
 
 /**
  * CMS auth server actions. Both roles (ADMIN, CONTENT_EDITOR) land on
  * /admin after signing in — there is no public student login (spec 17).
+ * Login is throttled per email address (10 attempts per 10 minutes,
+ * in-memory) to slow down password guessing.
  */
+
+/** Login throttle budget: 10 attempts per 10 minutes per email. */
+const LOGIN_MAX = 10;
+const LOGIN_WINDOW_MS = 10 * 60 * 1000;
 
 export interface AuthFormState {
   error?: string;
@@ -54,15 +61,29 @@ export async function loginAction(
   }
 
   const { email, password } = parsed.data;
+
+  // Counted before the credential check so failed guesses use up the
+  // budget too. Generic message: it does not reveal whether the account
+  // exists, matching the "Incorrect email or password." posture above.
+  const limit = rateLimit(
+    `login:${email.toLowerCase()}`,
+    LOGIN_MAX,
+    LOGIN_WINDOW_MS,
+  );
+  if (!limit.ok) {
+    const minutes = Math.max(1, Math.ceil(limit.retryAfterSec / 60));
+    return {
+      error: `Too many attempts - try again in ${minutes} minute${minutes === 1 ? "" : "s"}.`,
+    };
+  }
+
   const store = await getStore();
   const user = await store.getUserByEmail(email);
   if (!user || !verifyPassword(password, user.passwordHash)) {
     return { error: "Incorrect email or password." };
   }
 
-  await setSessionCookie(
-    createSessionToken({ uid: user.id, role: user.role }),
-  );
+  await setSessionCookie(createSessionToken({ uid: user.id, role: user.role }));
 
   const next = safeNextPath(formData.get("next"));
   redirect(next ?? "/admin");

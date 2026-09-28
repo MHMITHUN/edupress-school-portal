@@ -24,13 +24,13 @@ UI.
 Captured with `scripts/screenshots.mjs` (Playwright, desktop 1280x800 and
 mobile 390x844) into [`docs/screenshots/`](docs/screenshots/):
 
-| File                   | Page                                                       |
-| ---------------------- | ---------------------------------------------------------- |
-| `01-home.png`          | Home — hero, notices, events, statistics (1280x800)        |
-| `02-main-feature.png`  | Notice board — search, category chips, filters active      |
-| `03-results.png`       | Result verification — GPA card and subject marks           |
-| `04-mobile.png`        | Home at phone width (390x844)                              |
-| `05-admin.png`         | Admin CMS dashboard with the honest CMS mode badge         |
+| File                  | Page                                                  |
+| --------------------- | ----------------------------------------------------- |
+| `01-home.png`         | Home — hero, notices, events, statistics (1280x800)   |
+| `02-main-feature.png` | Notice board — search, category chips, filters active |
+| `03-results.png`      | Result verification — GPA card and subject marks      |
+| `04-mobile.png`       | Home at phone width (390x844)                         |
+| `05-admin.png`        | Admin CMS dashboard with the honest CMS mode badge    |
 
 ## Problem
 
@@ -366,6 +366,11 @@ store (the Mongo seed creates the same two users).
   [docs/wordpress-integration.md](docs/wordpress-integration.md)).
 - **Demo store resets** on server restart — it is an in-memory seed, not a
   database. Content edits made while in demo mode are not durable.
+- **Rate limiting is in-memory and per-instance**
+  (`src/lib/rate-limit.ts`): inquiry (5/hour per IP) and login
+  (10/10 minutes per email) throttles reset on server restart, and on
+  serverless platforms each instance enforces its own counters — a shared
+  store would be needed for fleet-wide limits.
 - **No real file uploads:** notice/download attachments store metadata
   (file name + label) only; the gallery uses generated CSS-art tiles, so
   the repo ships no binary assets.
