@@ -1,6 +1,5 @@
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
-import { DemoBanner } from "@/components/layout/DemoBanner";
 
 /**
  * Public site shell: honest demo banner, institutional header and footer.
@@ -13,7 +12,6 @@ export default function PublicLayout({
 }>) {
   return (
     <>
-      <DemoBanner />
       <SiteHeader />
       <main className="flex-1">{children}</main>
       <SiteFooter />
